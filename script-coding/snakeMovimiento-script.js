@@ -23,22 +23,40 @@ function moveSnake(snake, dir) {
 const dx = 20;
 const dy = 20;
 
+const x = dx * 20;
+const y = dy * 20;
 
+/**
+ * Retorna un numero aleatorio multiplo de dx que esta dentro el rango del ancho y el alto del canvas
+ */
+function random1(){
+  return (parseInt(Math.random()*(x/dx))*dx)-20;
+}
+
+function food2(){
+  const random = random1();
+  if (random < 0) return 0;
+  else return random;
+}
+
+function updateFood(){
+  return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), food:{x:food2(),y:food2()}});
+}
 /**
  * Esto se llama antes de iniciar el juego
  */
 function setup() {
-  frameRate(5);
-  createCanvas(400, 400);
-  background(15, 200, 50);
-  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }};
+  frameRate(9);
+  createCanvas(x, y);
+  background(0, 0, 0);
+  Mundo = {snake: [{x: 5,y: 1},{ x: 4, y: 1 }, { x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: food2(), y: food2()}};
 }
 
 // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
 function drawGame(Mundo){
-  background(10, 200, 50);
-  fill(240, 240, 240);
-
+  background(0, 0, 0);
+  fill(100, 240, 240);
+  rect(Mundo.food.x,Mundo.food.y,dx,dy);
   forEach(Mundo.snake, s => {
     rect(s.x * dx, s.y * dy, dx, dy);
   });
@@ -48,7 +66,17 @@ function drawGame(Mundo){
 
 // Esto se ejecuta en cada tic del reloj. Con esto se pueden hacer animaciones
 function onTic(Mundo){
-  return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir)});
+  const snake = first(Mundo.snake);
+  const comida = Mundo.food;
+  console.log("snake x: " + snake.x);
+  console.log("snake y: " + snake.y);
+  console.log("comida x: " + comida.x);
+  console.log("comida y: " + comida.y);
+  if (snake.x == (comida.x)/dx && snake.y == (comida.y)/dy) {
+    Mundo.snake.push({x: snake.x, y: snake.y});
+    return updateFood();
+  }
+  else return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir)});
 }
 
 //Implemente esta función si quiere que su programa reaccione a eventos del mouse
@@ -75,6 +103,9 @@ function onKeyEvent (Mundo, keyCode) {
     case RIGHT_ARROW:
       return update(Mundo, {dir: {y: 0, x: 1}});
       break;
+    /*case 74:
+      return update(Mundo, {food: {x: food2(), y: food2()}});
+      break;*/
     default:
       console.log(keyCode);
       return update(Mundo, {});
