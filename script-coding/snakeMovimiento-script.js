@@ -21,7 +21,7 @@ function moveSnake(snake, dir) {
 }
 
 const dx = 20;
-const dy = 20;
+const dy = dx;
 
 const x = dx * 20;
 const y = dy * 20;
@@ -29,18 +29,22 @@ const y = dy * 20;
 /**
  * Retorna un numero aleatorio multiplo de dx que esta dentro el rango del ancho y el alto del canvas
  */
-function random1(){
-  return (parseInt(Math.random()*(x/dx))*dx)-20;
-}
-
 function food2(){
-  const random = random1();
+  const random = (parseInt(Math.random()*(x/dx))*dx)-20;
   if (random < 0) return 0;
   else return random;
 }
-
+function drawFood(food){
+  fill(255,0,0);
+  rect(food.x,food.y,dx,dy);
+}
 function updateFood(){
-  return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), food:{x:food2(),y:food2()}});
+  return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), food:{x:food2(),y:food2()},score: Mundo.score + 10});
+}
+function drawScore(score){
+  fill(255,255,255);
+  textSize(24);
+  text("score: " + score,10,380);
 }
 /**
  * Esto se llama antes de iniciar el juego
@@ -49,14 +53,15 @@ function setup() {
   frameRate(9);
   createCanvas(x, y);
   background(0, 0, 0);
-  Mundo = {snake: [{x: 5,y: 1},{ x: 4, y: 1 }, { x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: food2(), y: food2()}};
+  Mundo = {snake: [{ x: 4, y: 1 }, { x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: food2(), y: food2()}, score:0};
 }
 
 // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
 function drawGame(Mundo){
   background(0, 0, 0);
-  fill(100, 240, 240);
-  rect(Mundo.food.x,Mundo.food.y,dx,dy);
+  drawScore(Mundo.score);
+  drawFood(Mundo.food);
+  fill(97, 255, 51);
   forEach(Mundo.snake, s => {
     rect(s.x * dx, s.y * dy, dx, dy);
   });
@@ -68,10 +73,10 @@ function drawGame(Mundo){
 function onTic(Mundo){
   const snake = first(Mundo.snake);
   const comida = Mundo.food;
-  console.log("snake x: " + snake.x);
-  console.log("snake y: " + snake.y);
-  console.log("comida x: " + comida.x);
-  console.log("comida y: " + comida.y);
+  //console.log("snake x: " + snake.x);
+  //console.log("snake y: " + snake.y);
+  //console.log("comida x: " + comida.x);
+  //console.log("comida y: " + comida.y);
   if (snake.x == (comida.x)/dx && snake.y == (comida.y)/dy) {
     Mundo.snake.push({x: snake.x, y: snake.y});
     return updateFood();
