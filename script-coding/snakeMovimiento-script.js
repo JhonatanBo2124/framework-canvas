@@ -23,49 +23,94 @@ function moveSnake(snake, dir) {
 const dx = 20;
 const dy = dx;
 
-const x = dx * 20;
-const y = dy * 20;
+const mapa = 20;
+
+const x = dx * mapa;
+const y = dy * mapa;
 
 /**
  * Retorna un numero aleatorio multiplo de dx que esta dentro el rango del ancho y el alto del canvas
  */
-function food2(){
-  const random = (parseInt(Math.random()*(x/dx))*dx)-20;
-  if (random < 0) return 0;
-  else return random;
+ function food2(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
 }
 function drawFood(food){
-  fill(255,0,0);
+   fill(255,0,0);
   rect(food.x,food.y,dx,dy);
 }
 function updateFood(){
-  return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), food:{x:food2(),y:food2()},score: Mundo.score + 10});
+  return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), food:{x:food2(1,mapa-1)*dx,y:food2(1,mapa-1)*dx},score: Mundo.score + 10});
 }
+
+
 function drawScore(score){
   fill(255,255,255);
   textSize(24);
-  text("score: " + score,10,380);
+  text("Score: " + score,dx,x-2*dx);
 }
+
+
+
+function concat(list1, list2){
+  if (isEmpty(list1)) return list2;
+  else return cons(first(list1), concat(rest(list1),list2));
+}
+function mapas(numero){
+  if (numero == 0) return [0];
+  else return concat(mapas(numero - 1), [numero]);
+}
+function drawWall(){
+  fill(51,119,255);
+  mapas(mapa).forEach(item => {
+    rect(item*dx,0,dx,dy);
+    rect(item*dx,x-dx,dx,dy);
+    rect(0,item*dx,dx,dy);
+    rect(x-dx,item*dx,dx,dy);
+  })
+}
+function gameOver(){
+  fill(255,255,255);
+  textSize(44);
+  text("Game Over",100,100);
+}
+
+
+
+
 /**
  * Esto se llama antes de iniciar el juego
  */
 function setup() {
-  frameRate(9);
+  Mundo = {snake: [{ x: 4, y: 1 }, { x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x:food2(1,mapa-1)*dx,y:food2(1,mapa-1)*dx}, score:0, speed:10, game:0 };
+  frameRate(Mundo.speed);
   createCanvas(x, y);
   background(0, 0, 0);
-  Mundo = {snake: [{ x: 4, y: 1 }, { x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: food2(), y: food2()}, score:0};
 }
-
+let gamer = 0;
 // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
 function drawGame(Mundo){
-  background(0, 0, 0);
-  drawScore(Mundo.score);
-  drawFood(Mundo.food);
-  fill(97, 255, 51);
-  forEach(Mundo.snake, s => {
-    rect(s.x * dx, s.y * dy, dx, dy);
-  });
-
+  const body = rest(Mundo.snake);
+  const head = first(Mundo.snake);
+ 
+  body.forEach(item => {
+    if (head.x == item.x && head.y == item.y){
+      gamer = 1;
+      gameOver();
+    } else if (head.x == 0 || head.y == 0 || head.x == (x-dx)/dx || head.y == (x-dx)/dx){
+      gamer = 1;
+      gameOver();
+    } else if (gamer == 1){
+      gameOver();
+    } else {
+      background(0, 0, 0);
+      drawWall();
+      drawScore(Mundo.score);
+      drawFood(Mundo.food);
+      fill(97, 255, 51);
+      forEach(Mundo.snake, s => {
+        rect(s.x * dx, s.y * dy, dx, dy);
+      });  }
+});
 }
 
 
